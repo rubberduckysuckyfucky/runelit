@@ -31,18 +31,21 @@ import net.runelite.api.MenuEntry;
 import net.runelite.api.events.ConfigChanged;
 import net.runelite.api.events.MenuOpened;
 import net.runelite.api.events.MenuOptionClicked;
-import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.input.KeyManager;
+import net.runelite.client.input.MouseManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.devtools.WidgetInfoTableModel;
+import net.runelite.client.plugins.grounditems.GroundItemInputListener;
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.apache.commons.lang3.ArrayUtils;
 
 import javax.inject.Inject;
-import javax.swing.*;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 @PluginDescriptor(
 	name = "! Auto Switcher",
@@ -60,6 +63,8 @@ public class AutoSwitcherPlugin extends Plugin
 	public String PRESET_2 = "Preset 2";
 	public String PRESET_1 = "Preset 1";
 
+	public boolean hotKeyPressed = false;
+
 	public int ITEM_PARAM = 9764864;
 
 	//TODO: Need to do a better Storing system for presets but it works for now.
@@ -69,6 +74,15 @@ public class AutoSwitcherPlugin extends Plugin
 
 	@Inject
 	private Client client;
+
+	@Inject
+	private MouseManager mouseManager;
+
+	@Inject
+	private KeyManager keyManager;
+
+	@Inject
+	private AutoSwitcherInputListener inputListener;
 
     @Inject
     private WidgetInfoTableModel infoTableModel;
@@ -82,6 +96,8 @@ public class AutoSwitcherPlugin extends Plugin
 	@Inject
 	public AutoSwitcherConfig config;
 
+	public MenuOpened lastMenuOpened;
+
 
 	@Provides
 	AutoSwitcherConfig getConfig(ConfigManager configManager)
@@ -93,26 +109,64 @@ public class AutoSwitcherPlugin extends Plugin
 	protected void startUp() throws Exception
 	{
 		overlayManager.add(overlay);
+		mouseManager.registerMouseListener(inputListener);
+		keyManager.registerKeyListener(inputListener);
 	}
 
 	@Override
 	protected void shutDown() throws Exception
 	{
 		overlayManager.remove(overlay);
+		mouseManager.unregisterMouseListener(inputListener);
+		keyManager.unregisterKeyListener(inputListener);
+	}
+
+	public void executeScript(int key) {
+		if (key == KeyEvent.VK_1) {
+			System.out.println("Off with their Heads!");
+			List switches = getSwitchesFromPreset(1);
+			for (Object as : switches.toArray()) {
+				AutoSwitch news = (AutoSwitch) as;
+				if (news.isItemSwitch) {
+					System.out.print("Item Switch: ");
+					System.out.println(" ID: "+news.itemID);
+				}
+				if (news.isTabSwitch) {
+					System.out.print("Tab Switch: ");
+					System.out.println(" ID: "+news.tabName);
+				}
+			}
+		}
+		if (key == KeyEvent.VK_2) {
+
+		}
+		if (key == KeyEvent.VK_3) {
+
+		}
+
 	}
 
 	@Subscribe
 	public void onMenuOpened(MenuOpened event)
 	{
 		debugMenuInfo(event);
+		lastMenuOpened = event;
 
 		if (isInventoryMenu(event)) {
 			addItemEntries(event);
 		} else if (isTabMenu(event)) {
 			addTabEntries(event);
 		}
-
 	}
+
+	public void setCoreKeyPressed(boolean isPressed) {
+		hotKeyPressed = isPressed;
+	}
+
+	public boolean isCoreKeyPressed() {
+		return hotKeyPressed;
+	}
+
 
 	public void onConfigChanged(ConfigChanged event) {
 		if (config.preset1()!=preset1)
@@ -122,6 +176,25 @@ public class AutoSwitcherPlugin extends Plugin
 		if (config.preset3()!=preset3)
 			preset3=config.preset3();
 
+	}
+
+	public List getSwitchesFromPreset(int preset) {
+		String presetString = config.preset1();
+		String[] actions = presetString.split(",");
+		List switchList = new ArrayList<AutoSwitch>();
+		for (String s : actions) {
+			if (s.startsWith("T")) {
+				AutoSwitch newSwitch = new AutoSwitch("tab", (s.replace("T", "")));
+				switchList.add(newSwitch);
+				System.out.println(s);
+			}
+			if (s.startsWith("I")) {
+				AutoSwitch newSwitch = new AutoSwitch("item", Integer.valueOf(s.replace("I", "")));
+				switchList.add(newSwitch);
+				System.out.println(s);
+			}
+		}
+		return switchList;
 	}
 
 	@Subscribe
@@ -139,14 +212,46 @@ public class AutoSwitcherPlugin extends Plugin
 
 		}
 		if (event.getMenuOption()==ADD_TAB_TO) {
-			config.setPreset1(config.preset1()+",T"+event.getId());
+			for (MenuEntry me : lastMenuOpened.getMenuEntries()) {
+				System.out.println(me.getOption());
+				if (isTabName(me)) {
+					config.setPreset1(config.preset1()+",T"+me.getOption());
+					return;
+				} else {
+					System.out.println(me.getOption());
+				}
+			}
+
 		}
+	}
+
+	public boolean isTabName(MenuEntry me) {
+		if (me.getOption().compareTo("Combat Options")==0)
+			return true;
+		if (me.getOption().compareTo("Inventory")==0)
+			return true;
+		if (me.getOption().compareTo("Worn Equipment")==0)
+			return true;
+		if (me.getOption().compareTo("Prayer")==0)
+			return true;
+		if (me.getOption().compareTo("Magic")==0)
+			return true;
+		if (me.getOption().compareTo("Combat Options")==0)
+			return true;
+		if (me.getOption().compareTo("Emotes")==0)
+			return true;
+		if (me.getOption().compareTo("Logout")==0)
+			return true;
+
+		System.out.println(me.getOption().compareTo("Magic"));
+		return false;
 	}
 
 	public void addItemToPreset(MenuOptionClicked event, ArrayList<Integer> preset) {
 		String itemIdString = event.getMenuOption().replace("Add Item:", "");
 		int itemId = Integer.valueOf(itemIdString);
 		preset.add(itemId);
+		AutoSwitch autoSwitch = new AutoSwitch("item", itemId);
 		if(event.getMenuTarget().endsWith(PRESET_1)) {
 			config.setPreset1(config.preset1()+",I"+itemId);
 		}
