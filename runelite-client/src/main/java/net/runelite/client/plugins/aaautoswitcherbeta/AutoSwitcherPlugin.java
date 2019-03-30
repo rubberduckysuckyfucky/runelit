@@ -29,8 +29,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.events.ConfigChanged;
+import net.runelite.api.events.GameTick;
 import net.runelite.api.events.MenuOpened;
 import net.runelite.api.events.MenuOptionClicked;
+import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.input.KeyManager;
@@ -111,6 +113,22 @@ public class AutoSwitcherPlugin extends Plugin
 		overlayManager.add(overlay);
 		mouseManager.registerMouseListener(inputListener);
 		keyManager.registerKeyListener(inputListener);
+		initOverlay();
+	}
+
+	public void initOverlay() {
+		for (Object o : getSwitchesFromPreset(1)) {
+			AutoSwitch as = (AutoSwitch) o;
+			AutoSwitcherOverlay.preset1Items.add(as.itemID);
+		}
+		for (Object o : getSwitchesFromPreset(2)) {
+			AutoSwitch as = (AutoSwitch) o;
+			AutoSwitcherOverlay.preset2Items.add(as.itemID);
+		}
+		for (Object o : getSwitchesFromPreset(3)) {
+			AutoSwitch as = (AutoSwitch) o;
+			AutoSwitcherOverlay.preset3Items.add(as.itemID);
+		}
 	}
 
 	@Override
@@ -122,27 +140,41 @@ public class AutoSwitcherPlugin extends Plugin
 	}
 
 	public void executeScript(int key) {
-		if (key == KeyEvent.VK_1) {
-			System.out.println("Off with their Heads!");
-			List switches = getSwitchesFromPreset(1);
-			for (Object as : switches.toArray()) {
-				AutoSwitch news = (AutoSwitch) as;
-				if (news.isItemSwitch) {
-					System.out.print("Item Switch: ");
-					System.out.println(" ID: "+news.itemID);
-				}
-				if (news.isTabSwitch) {
-					System.out.print("Tab Switch: ");
-					System.out.println(" ID: "+news.tabName);
-				}
+		try {
+			MouseUtil mu = new MouseUtil();
+			if (key == KeyEvent.VK_1) {
+				System.out.println("Off with their Heads!");
+				List switches = getSwitchesFromPreset(1);
+				Thread thread = new Thread(){
+					public void run(){
+						System.out.println("Thread Running");
+						for (Object as : switches.toArray()) {
+							AutoSwitch news = (AutoSwitch) as;
+							if (news.isItemSwitch) {
+								System.out.print("Item Switch: ");
+								mu.doClick(news.itemID);
+								System.out.println(" ID: "+news.itemID);
+							}
+							if (news.isTabSwitch) {
+								System.out.print("Tab Switch: ");
+								System.out.println(" ID: "+news.tabName);
+							}
+						}
+					}
+				};
+
+				thread.start();
 			}
-		}
-		if (key == KeyEvent.VK_2) {
+			if (key == KeyEvent.VK_2) {
 
-		}
-		if (key == KeyEvent.VK_3) {
+			}
+			if (key == KeyEvent.VK_3) {
 
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+
 
 	}
 
@@ -167,8 +199,11 @@ public class AutoSwitcherPlugin extends Plugin
 		return hotKeyPressed;
 	}
 
-
+@Subscribe
 	public void onConfigChanged(ConfigChanged event) {
+		AutoSwitcherOverlay.preset1Items = new ArrayList<>();
+		AutoSwitcherOverlay.preset2Items = new ArrayList<>();
+		AutoSwitcherOverlay.preset3Items = new ArrayList<>();
 		if (config.preset1()!=preset1)
 			preset1=config.preset1();
 		if (config.preset2()!=preset2)
@@ -176,10 +211,18 @@ public class AutoSwitcherPlugin extends Plugin
 		if (config.preset3()!=preset3)
 			preset3=config.preset3();
 
+		AutoSwitcherOverlay.inventoryItems = new ArrayList<WidgetItem>();
+		initOverlay();
 	}
 
 	public List getSwitchesFromPreset(int preset) {
-		String presetString = config.preset1();
+		String presetString = "";
+		if (preset==1)
+			presetString = config.preset1();
+		if (preset==2)
+			presetString = config.preset2();
+		if (preset==3)
+			presetString = config.preset3();
 		String[] actions = presetString.split(",");
 		List switchList = new ArrayList<AutoSwitch>();
 		for (String s : actions) {

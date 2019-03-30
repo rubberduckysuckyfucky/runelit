@@ -46,6 +46,8 @@ public class AutoSwitcherOverlay extends Overlay {
     public static ArrayList<Integer> preset2Items = new ArrayList<>();
     public static ArrayList<Integer> preset3Items = new ArrayList<>();
 
+    public static ArrayList inventoryItems = new ArrayList<WidgetItem>();
+
     @Inject
     private QueryRunner queryRunner = new QueryRunner();
 
@@ -77,7 +79,9 @@ public class AutoSwitcherOverlay extends Overlay {
 
         graphics.setFont(FontManager.getRunescapeSmallFont());
 
+        inventoryItems = new ArrayList<WidgetItem>();
         for (WidgetItem item : inventoryWidgetItems) {
+            inventoryItems.add(item);
             for (Integer i : preset1Items) {
                 if (i == item.getId()) {
                     graphics.setColor(Color.red);
