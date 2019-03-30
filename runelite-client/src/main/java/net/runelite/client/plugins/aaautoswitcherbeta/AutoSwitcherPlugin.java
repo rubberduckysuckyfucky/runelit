@@ -166,10 +166,50 @@ public class AutoSwitcherPlugin extends Plugin
 				thread.start();
 			}
 			if (key == KeyEvent.VK_2) {
+				System.out.println("Off with their Heads!");
+				List switches = getSwitchesFromPreset(2);
+				Thread thread = new Thread(){
+					public void run(){
+						System.out.println("Thread Running");
+						for (Object as : switches.toArray()) {
+							AutoSwitch news = (AutoSwitch) as;
+							if (news.isItemSwitch) {
+								System.out.print("Item Switch: ");
+								mu.doClick(news.itemID);
+								System.out.println(" ID: "+news.itemID);
+							}
+							if (news.isTabSwitch) {
+								System.out.print("Tab Switch: ");
+								System.out.println(" ID: "+news.tabName);
+							}
+						}
+					}
+				};
 
+				thread.start();
 			}
 			if (key == KeyEvent.VK_3) {
+				System.out.println("Off with their Heads!");
+				List switches = getSwitchesFromPreset(3);
+				Thread thread = new Thread(){
+					public void run(){
+						System.out.println("Thread Running");
+						for (Object as : switches.toArray()) {
+							AutoSwitch news = (AutoSwitch) as;
+							if (news.isItemSwitch) {
+								System.out.print("Item Switch: ");
+								mu.doClick(news.itemID);
+								System.out.println(" ID: "+news.itemID);
+							}
+							if (news.isTabSwitch) {
+								System.out.print("Tab Switch: ");
+								System.out.println(" ID: "+news.tabName);
+							}
+						}
+					}
+				};
 
+				thread.start();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
