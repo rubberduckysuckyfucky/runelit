@@ -19,6 +19,7 @@ public class MouseUtil {
     private QueryRunner queryRunner = new QueryRunner();
 
     public void doClick(int id) {
+        Point p = MouseInfo.getPointerInfo().getLocation();
         Robot bot = null;
         try {
             bot = new Robot();
@@ -49,6 +50,7 @@ public class MouseUtil {
             bot.delay(random2);
             bot.mouseRelease(mask);
             bot.delay(random3);
+            bot.mouseMove((int)p.getX(), (int)p.getY());
             return;
         }
     }
