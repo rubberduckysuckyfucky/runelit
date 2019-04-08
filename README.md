@@ -1,6 +1,6 @@
 ![](https://i.imgur.com/sBLouZ7.png)
 
-[![Discord](https://img.shields.io/discord/373382904769675265.svg)](https://discord.gg/HN5gf3m) ![](https://travis-ci.com/zeruth/runelit.svg?branch=master)  
+[![Discord](https://img.shields.io/discord/373382904769675265.svg)](https://discord.gg/HN5gf3m) [![Travis](https://travis-ci.com/zeruth/runelit.svg?branch=master)](https://travis-ci.com/zeruth/runelit)  
 RuneLit is a fork of [RuneLite](https://github.com/runelite/runelite) that includes additional plugins  
   
 # Notable Features:
