@@ -5,6 +5,7 @@ import net.runelite.api.Query;
 import net.runelite.api.queries.InventoryWidgetItemQuery;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.flexo.Flexo;
+import net.runelite.client.flexo.FlexoUtils;
 import net.runelite.client.ui.ClientUI;
 import net.runelite.client.util.QueryRunner;
 
@@ -51,20 +52,12 @@ public class MouseUtil {
                         case "Group 2":
                         case "Group 3":
                         case "Group 4":
-                            Rectangle clickArea = item.getCanvasBounds();
-                            Rectangle temp = clickArea;
-                            temp.x = temp.x+3;
-                            temp.y = temp.y+3;
-                            Random r = new Random();
-
-                            temp.width = 10+r.nextInt(temp.width-6);
-                            temp.height = 10+r.nextInt(temp.height-6);
-
-                            int mask = InputEvent.BUTTON1_DOWN_MASK;
+                            Rectangle clickArea = FlexoUtils.getItemArea(item, 3);
                             int clientX = ClientUI.frame.getX();
                             int clientY = ClientUI.frame.getY();
-                            bot.mouseMove(8 + temp.x + clientX + (int) temp.getWidth() / 2, 8 + temp.y + clientY + (int) temp.getHeight() / 2 + 20);
+                            bot.mouseMove(8 + clickArea.x + clientX + (int) clickArea.getWidth() / 2, 8 + clickArea.y + clientY + (int) clickArea.getHeight() / 2 + 20);
                             bot.mousePressAndRelease(1);
+
                     }
 
                 }

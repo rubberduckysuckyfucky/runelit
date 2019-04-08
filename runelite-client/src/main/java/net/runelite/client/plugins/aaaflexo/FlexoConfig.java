@@ -35,6 +35,16 @@ public interface FlexoConfig extends Config {
 
     @ConfigItem(
             position = 0,
+            keyName = "overlayEnabled",
+            name = "Overlay Enabled",
+            description = "Shows clicking area and points etc."
+    )
+    default boolean overlayEnabled() {
+        return true;
+    }
+
+    @ConfigItem(
+            position = 1,
             keyName = "minDelayAmount",
             name = "Min Delay",
             description = "Minimum delay that is applied to every action at the end (ms)"
@@ -45,7 +55,7 @@ public interface FlexoConfig extends Config {
 
 
     @ConfigItem(
-            position = 1,
+            position = 2,
             keyName = "reactionTime",
             name = "Reaction Time",
             description = "The base time between actions (ms)"
@@ -55,7 +65,7 @@ public interface FlexoConfig extends Config {
     }
 
     @ConfigItem(
-            position = 2,
+            position = 3,
             keyName = "mouseDragSpeed",
             name = "Mouse drag speed",
             description = "The speed at which steps are executed. Keep at 49? cuz jagex mouse recorder?"
@@ -66,7 +76,7 @@ public interface FlexoConfig extends Config {
 
 
     @ConfigItem(
-            position = 3,
+            position = 4,
             keyName = "overshoots",
             name = "Overshoots",
             description = "Higher number = more overshoots"
@@ -76,7 +86,7 @@ public interface FlexoConfig extends Config {
     }
 
     @ConfigItem(
-            position = 4,
+            position = 5,
             keyName = "variatingFlow",
             name = "Flow - Variating",
             description = ""
@@ -86,7 +96,7 @@ public interface FlexoConfig extends Config {
     }
 
     @ConfigItem(
-            position = 5,
+            position = 6,
             keyName = "slowStartupFlow",
             name = "Flow - Slow startup",
             description = ""
@@ -97,7 +107,7 @@ public interface FlexoConfig extends Config {
 
 
     @ConfigItem(
-            position = 6,
+            position = 7,
             keyName = "slowStartup2Flow",
             name = "Flow - Slow startup 2",
             description = ""
@@ -107,7 +117,7 @@ public interface FlexoConfig extends Config {
     }
 
     @ConfigItem(
-            position = 7,
+            position = 8,
             keyName = "jaggedFlow",
             name = "Flow - Jagged",
             description = ""
@@ -117,7 +127,7 @@ public interface FlexoConfig extends Config {
     }
 
     @ConfigItem(
-            position = 8,
+            position = 9,
             keyName = "interruptedFlow",
             name = "Flow - Interrupted",
             description = ""
@@ -128,7 +138,7 @@ public interface FlexoConfig extends Config {
 
 
     @ConfigItem(
-            position = 9,
+            position = 10,
             keyName = "interruptedFlow2",
             name = "Flow - Interrupted 2",
             description = ""
@@ -138,7 +148,7 @@ public interface FlexoConfig extends Config {
     }
 
     @ConfigItem(
-            position = 10,
+            position = 11,
             keyName = "stoppingFlow",
             name = "Flow - Stopping",
             description = ""
@@ -148,7 +158,7 @@ public interface FlexoConfig extends Config {
     }
 
     @ConfigItem(
-            position = 11,
+            position = 12,
             keyName = "deviationSlopeDivider",
             name = "Deviation slope divider",
             description = ""
@@ -159,7 +169,7 @@ public interface FlexoConfig extends Config {
 
 
     @ConfigItem(
-            position = 12,
+            position = 13,
             keyName = "noisinessDivider",
             name = "Noisiness divider",
             description = ""

@@ -40,6 +40,7 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 import com.github.joonasvali.naturalmouse.api.MouseMotionFactory;
+import net.runelite.client.plugins.aaaflexo.FlexoOverlay;
 import sun.awt.ComponentFactory;
 import sun.awt.SunToolkit;
 
@@ -167,7 +168,12 @@ public class Flexo extends java.awt.Robot{
       return;
     }
     peer.mousePress(InputEvent.getMaskForButton(buttonID));
+    resetOverlay();
     this.delay(getMinDelay());
+  }
+
+  public void resetOverlay() {
+    FlexoOverlay.clickArea = null;
   }
 
   public synchronized void mousePressAndRelease(int buttonID) {
@@ -178,6 +184,7 @@ public class Flexo extends java.awt.Robot{
     peer.mousePress(InputEvent.getMaskForButton(buttonID));
     this.delay(getMinDelay());
     peer.mouseRelease(InputEvent.getMaskForButton(buttonID));
+    resetOverlay();
     this.delay(getMinDelay());
   }
 
@@ -187,6 +194,7 @@ public class Flexo extends java.awt.Robot{
       return;
     }
     peer.mouseRelease(InputEvent.getMaskForButton(buttonID));
+    resetOverlay();
     this.delay(getMinDelay());
   }
 
