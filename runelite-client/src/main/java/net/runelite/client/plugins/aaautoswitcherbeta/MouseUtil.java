@@ -10,6 +10,7 @@ import net.runelite.api.Query;
 import net.runelite.api.queries.InventoryWidgetItemQuery;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.flexo.Flexo;
+import net.runelite.client.flexo.FlexoUtils;
 import net.runelite.client.ui.ClientUI;
 import net.runelite.client.util.QueryRunner;
 
@@ -80,7 +81,7 @@ public class MouseUtil
 						case "Group 2":
 						case "Group 3":
 						case "Group 4":
-							Rectangle clickArea = item.getCanvasBounds();
+              Rectangle clickArea = FlexoUtils.getItemArea(item, 3);
 							if (clickArea.getY() <= 0)
 							{
 								//TODO: sloppy null check, but it works.
@@ -92,7 +93,6 @@ public class MouseUtil
 							{
 								return;
 							}
-							int mask = InputEvent.BUTTON1_DOWN_MASK;
 							int clientX = ClientUI.frame.getX();
 							int clientY = ClientUI.frame.getY();
 							bot.mouseMove(clickPoint.getX(), clickPoint.getY());

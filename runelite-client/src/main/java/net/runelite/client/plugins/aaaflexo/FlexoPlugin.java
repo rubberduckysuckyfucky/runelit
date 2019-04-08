@@ -37,6 +37,9 @@ public class FlexoPlugin extends Plugin {
     @Inject
     private OverlayManager overlayManager;
 
+    @Inject
+    private FlexoOverlay overlay;
+
     @Provides
     FlexoConfig getConfig(ConfigManager configManager) {
         return configManager.getConfig(FlexoConfig.class);
@@ -44,6 +47,13 @@ public class FlexoPlugin extends Plugin {
 
     @Subscribe
     private void onConfigChanged(ConfigChanged event) {
+        if (event.getKey().compareTo("overlayEnabled")==0) {
+            if (getConfig(configManager).overlayEnabled()) {
+                overlayManager.add(overlay);
+            } else {
+                overlayManager.remove(overlay);
+            }
+        }
         updateMouseMotionFactory();
     }
 
@@ -93,6 +103,12 @@ public class FlexoPlugin extends Plugin {
 
     @Override
     protected void startUp() throws Exception {
+        overlayManager.add(overlay);
         updateMouseMotionFactory();
+    }
+
+    @Override
+    protected void shutDown() throws Exception {
+        overlayManager.remove(overlay);
     }
 }
