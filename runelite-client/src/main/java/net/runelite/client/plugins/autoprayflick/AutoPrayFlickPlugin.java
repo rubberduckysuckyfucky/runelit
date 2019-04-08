@@ -37,6 +37,7 @@ import net.runelite.api.events.ConfigChanged;
 import net.runelite.api.events.FocusChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.flexo.Flexo;
 import net.runelite.client.input.*;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -156,20 +157,14 @@ public class AutoPrayFlickPlugin extends Plugin implements KeyListener, MouseLis
 		if (toggleFlick && config.clicks()) {
 			try {
 				simClick(4);
-			} catch (ExecutionException e) {
-				e.printStackTrace();
-			} catch (InterruptedException e) {
+			} catch (ExecutionException | InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 		if (toggleFlick && !config.clicks()) {
 			try {
 				singleClick();
-			} catch (ExecutionException e) {
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (AWTException e) {
+			} catch (ExecutionException | AWTException | InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
@@ -194,29 +189,14 @@ public class AutoPrayFlickPlugin extends Plugin implements KeyListener, MouseLis
 	public void simClick(int button) throws ExecutionException, InterruptedException {
 		try {
 
-			Robot mouseclick = new Robot();
-
-			if (button == 1) {
-				mouseclick.mousePress(InputEvent.BUTTON1_MASK);
-				//mouseclick.delay(randomDelay(50));
-				mouseclick.mouseRelease(InputEvent.BUTTON1_MASK);
-			}
-
-			if (button == 2) {
-				mouseclick.mousePress(InputEvent.BUTTON2_MASK);
-				//mouseclick.delay(randomDelay(50));
-				mouseclick.mouseRelease(InputEvent.BUTTON2_MASK);
-			}
-
-			if (button == 3) {
-				mouseclick.mousePress(InputEvent.BUTTON3_MASK);
-				//mouseclick.delay(randomDelay(50));
-				mouseclick.mouseRelease(InputEvent.BUTTON3_MASK);
-			}
+			Flexo mouseclick = new Flexo();
 
 			if (button == 4) {
 				doubleClick();
+				return;
 			}
+
+			mouseclick.mousePressAndRelease(button);
 
 		} catch (AWTException e) {
 
@@ -243,7 +223,6 @@ public class AutoPrayFlickPlugin extends Plugin implements KeyListener, MouseLis
         dblClk.mousePress(InputEvent.BUTTON1_MASK);
         //dblClk.delay(randomDelay(50));
         dblClk.mouseRelease(InputEvent.BUTTON1_MASK);*/
-
 		delayFirstClick();
 	}
 
@@ -257,7 +236,7 @@ public class AutoPrayFlickPlugin extends Plugin implements KeyListener, MouseLis
 
 	public void delayFirstClick() throws ExecutionException, InterruptedException {
 		final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-		ScheduledFuture<?> future = service.schedule(() -> simLeftClick(), randomDelay(1, 9), TimeUnit.MILLISECONDS);
+		ScheduledFuture<?> future = service.schedule(() -> simLeftClick(), Flexo.minDelay+randomDelay(1, 29), TimeUnit.MILLISECONDS);
 
 		//future.get();
 		service.shutdown();
@@ -265,7 +244,7 @@ public class AutoPrayFlickPlugin extends Plugin implements KeyListener, MouseLis
 
     public void delaySecondClick() throws ExecutionException, InterruptedException {
         final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-        ScheduledFuture<?> future = service.schedule(() -> simLeftClick(), randomDelay(90, 100), TimeUnit.MILLISECONDS);
+        ScheduledFuture<?> future = service.schedule(() -> simLeftClick(), Flexo.minDelay+randomDelay(90, 100), TimeUnit.MILLISECONDS);
 
         //future.get();
 		service.shutdown();
@@ -273,9 +252,8 @@ public class AutoPrayFlickPlugin extends Plugin implements KeyListener, MouseLis
 
     public void simLeftClick() {
         try {
-            Robot leftClk = new Robot();
-            leftClk.mousePress(InputEvent.BUTTON1_MASK);
-            leftClk.mouseRelease(InputEvent.BUTTON1_MASK);
+        	Flexo bot = new Flexo();
+        	bot.mousePressAndRelease(1);
         } catch (AWTException e) {
 
         }
