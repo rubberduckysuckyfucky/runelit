@@ -34,6 +34,7 @@ package net.runelite.client.flexo;
 
 import java.awt.*;
 import java.awt.event.InputEvent;
+import java.awt.geom.Ellipse2D;
 import java.awt.image.DirectColorModel;
 import java.awt.peer.RobotPeer;
 import java.util.Random;
@@ -41,6 +42,7 @@ import java.util.logging.Logger;
 
 import com.github.joonasvali.naturalmouse.api.MouseMotionFactory;
 import net.runelite.client.plugins.aaaflexo.FlexoOverlay;
+import net.runelite.client.ui.ClientUI;
 import sun.awt.ComponentFactory;
 import sun.awt.SunToolkit;
 
@@ -71,6 +73,7 @@ import sun.awt.SunToolkit;
  * @since       1.3
  */
 public class Flexo extends java.awt.Robot{
+  public static boolean isStretched;
   public static int minDelay = 45;
   public static MouseMotionFactory currentMouseMotionFactory;
   private static final int MAX_DELAY = 60000;
@@ -155,7 +158,8 @@ public class Flexo extends java.awt.Robot{
    */
   public synchronized void mouseMove(int x, int y) {
     try {
-      currentMouseMotionFactory.build(x, y).move();
+      //TODO: Must be better way to determine titlebar width
+      currentMouseMotionFactory.build(ClientUI.frame.getX()+x, ClientUI.frame.getY()+y+20).move();
       this.delay(getMinDelay());
     } catch (InterruptedException e) {
       e.printStackTrace();

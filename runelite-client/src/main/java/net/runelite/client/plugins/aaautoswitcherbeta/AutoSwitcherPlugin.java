@@ -43,6 +43,7 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.devtools.WidgetInfoTableModel;
 import net.runelite.client.plugins.inventorytags.InventoryTagsConfig;
 import net.runelite.client.plugins.stretchedmode.StretchedModeConfig;
+import net.runelite.client.ui.ClientUI;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.ColorUtil;
 import org.apache.commons.lang3.ArrayUtils;
@@ -182,6 +183,8 @@ public class AutoSwitcherPlugin extends Plugin {
     public void executeScript(int preset) {
         MouseUtil mu = new MouseUtil(client,config,smConfig,this);
         Point p = MouseInfo.getPointerInfo().getLocation();
+        p.x -= ClientUI.frame.getX();
+        p.y -= ClientUI.frame.getY();
         try {
             Flexo flexo = new Flexo();
             List switches = getSwitchesFromPreset(preset);

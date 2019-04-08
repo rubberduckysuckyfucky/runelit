@@ -13,7 +13,6 @@ import java.awt.geom.Ellipse2D;
 public class FlexoOverlay extends Overlay {
 
     public static Rectangle clickArea;
-    public static Ellipse2D.Double clickAlert;
 
     @Inject
     private Client client;
@@ -38,10 +37,6 @@ public class FlexoOverlay extends Overlay {
     public Dimension render(Graphics2D graphics) {
         if (clickArea!=null)
             graphics.draw(clickArea);
-        if (clickAlert!=null) {
-            graphics.setColor(Color.cyan);
-            graphics.fill(clickAlert);
-        }
         return null;
     }
 }

@@ -9,17 +9,20 @@ import com.github.joonasvali.naturalmouse.support.SinusoidalDeviationProvider;
 import com.github.joonasvali.naturalmouse.util.FlowTemplates;
 import com.google.inject.Provides;
 import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.Client;
 import net.runelite.api.events.ConfigChanged;
+import net.runelite.api.events.GameTick;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.flexo.Flexo;
+import net.runelite.client.flexo.FlexoUtils;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.stretchedmode.StretchedModeConfig;
 import net.runelite.client.ui.overlay.OverlayManager;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @PluginDescriptor(
@@ -30,6 +33,8 @@ import java.util.List;
 @Slf4j
 public class FlexoPlugin extends Plugin {
 
+    @Inject
+    private Client client;
 
     @Inject
     private ConfigManager configManager;
@@ -55,6 +60,12 @@ public class FlexoPlugin extends Plugin {
             }
         }
         updateMouseMotionFactory();
+    }
+
+    @Subscribe
+    public void onGameTick(GameTick event) {
+        Flexo.isStretched = client.isStretchedEnabled();
+        FlexoUtils.scale = configManager.getConfig(StretchedModeConfig.class).scalingFactor();
     }
 
     private void updateMouseMotionFactory() {
@@ -103,6 +114,7 @@ public class FlexoPlugin extends Plugin {
 
     @Override
     protected void startUp() throws Exception {
+        Flexo.isStretched = client.isStretchedEnabled();
         overlayManager.add(overlay);
         updateMouseMotionFactory();
     }

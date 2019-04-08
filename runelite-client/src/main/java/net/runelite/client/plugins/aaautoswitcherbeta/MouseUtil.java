@@ -55,25 +55,6 @@ public class MouseUtil
 		this.plugin = plugin;
 	}
 
-	public Point getClickPoint(Rectangle rect)
-	{
-		if (config.stretchedState())
-		{
-			int rand = (Math.random() <= 0.5) ? 1 : 2;
-			int x = (int) (rect.getX() + rand + rect.getWidth() / 2);
-			int y = (int) (rect.getY() + rand + rect.getHeight() / 2);
-			double scale = 1 + ((double) smConfig.scalingFactor() / 100);
-			return new Point((int) (x * scale), (int) (y * scale));
-		}
-		else
-		{
-			int rand = (Math.random() <= 0.5) ? 1 : 2;
-			int x = (int) (rect.getX() + rand + rect.getWidth() / 2);
-			int y = (int) (rect.getY() + rand + rect.getHeight() / 2);
-			return new Point(x, y);
-		}
-	}
-
 	public void doClick(int id)
 	{
 		double scale = 1 + ((double) smConfig.scalingFactor() / 100);
@@ -109,13 +90,13 @@ public class MouseUtil
 							{
 								clickPoint = new Point(0, 0);
 							}
-							clickPoint = getClickPoint(clickArea);
+							clickPoint = FlexoUtils.getClickPoint(clickArea);
 							System.out.println(clickPoint);
 							if (clickPoint.getX() <= 0)
 							{
 								return;
 							}
-							bot.mouseMove(clickPoint.getX(), (clickPoint.getY() + 20));
+							bot.mouseMove(clickPoint.getX(), clickPoint.getY());
 							bot.mousePressAndRelease(1);
 					}
 

@@ -33,17 +33,6 @@ import java.awt.*;
 @ConfigGroup("autoswitcher")
 public interface AutoSwitcherConfig extends Config {
 
-	@ConfigItem(
-		keyName = "stretchedState",
-		name = "Stretched Mode",
-		description = "Enable if using stretched mode",
-		position = 0
-	)
-	default boolean stretchedState()
-	{
-		return true;
-	}
-	
     @ConfigItem(
             position = 0,
             keyName = "menuEntriesEnabled",

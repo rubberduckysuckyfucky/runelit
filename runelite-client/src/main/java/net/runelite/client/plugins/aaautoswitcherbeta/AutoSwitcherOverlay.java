@@ -27,7 +27,6 @@ package net.runelite.client.plugins.aaautoswitcherbeta;
 import net.runelite.api.Client;
 import net.runelite.api.Query;
 import net.runelite.api.queries.InventoryWidgetItemQuery;
-import net.runelite.api.queries.WidgetItemQuery;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.overlay.Overlay;
