@@ -1,36 +1,32 @@
 package net.runelite.client.plugins.aaautoswitcherbeta;
 
-import com.google.inject.Provides;
 import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
+import java.awt.event.InputEvent;
+import javax.annotation.Nullable;
+import javax.inject.Inject;
 import net.runelite.api.Client;
-import net.runelite.api.Query;
 import net.runelite.api.Point;
+import net.runelite.api.Query;
 import net.runelite.api.queries.InventoryWidgetItemQuery;
 import net.runelite.api.widgets.WidgetItem;
-import net.runelite.client.config.ConfigManager;
 import net.runelite.client.flexo.Flexo;
-import net.runelite.client.plugins.stretchedmode.StretchedModeConfig;
 import net.runelite.client.ui.ClientUI;
 import net.runelite.client.util.QueryRunner;
 
-import javax.annotation.Nullable;
-import javax.inject.Inject;
-import java.awt.event.InputEvent;
-import java.util.Random;
-
-public class MouseUtil {
+public class MouseUtil
+{
 
 	private Client client;
 
 	@Inject
 	private AutoSwitcherPlugin plugin;
-	private Point clickPoint = new Point(0,0);
+	private Point clickPoint = new Point(0, 0);
 	@Inject
 	private QueryRunner queryRunner = new QueryRunner();
 
 	@Inject
-	public MouseUtil(@Nullable Client client, AutoSwitcherPlugin plugin) {
+	public MouseUtil(@Nullable Client client, AutoSwitcherPlugin plugin)
+	{
 		this.client = client;
 		this.plugin = plugin;
 	}
@@ -43,8 +39,8 @@ public class MouseUtil {
 		int x = (int) (rect.getX() + rand + rect.getWidth() / 2);
 		int y = (int) (rect.getY() + rand + rect.getHeight() / 2);
 		//TODO:int 75 Should grab config.scalingFactor().
-		double scale = 1 + ((double)75 / 100);
-		return new Point((int)(x * scale), (int)(y * scale));
+		double scale = 1 + ((double) 75 / 100);
+		return new Point((int) (x * scale), (int) (y * scale));
 /*		else
 		{
 			int rand = (Math.random() <= 0.5) ? 1 : 2;
@@ -55,11 +51,15 @@ public class MouseUtil {
 	}
 
 
-	public void doClick(int id) {
+	public void doClick(int id)
+	{
 		Flexo bot = null;
-		try {
+		try
+		{
 			bot = new Flexo();
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			e.printStackTrace();
 		}
 
@@ -67,11 +67,15 @@ public class MouseUtil {
 
 		final WidgetItem[] widgetItems = (WidgetItem[]) query.result(client);
 
-		for (final WidgetItem item : widgetItems) {
+		for (final WidgetItem item : widgetItems)
+		{
 			final String group = plugin.getTag(item.getId());
 			if (item.getId() == id)
-				if (group != null) {
-					switch (group) {
+			{
+				if (group != null)
+				{
+					switch (group)
+					{
 						case "Group 1":
 						case "Group 2":
 						case "Group 3":
@@ -80,7 +84,7 @@ public class MouseUtil {
 							if (clickArea.getY() <= 0)
 							{
 								//TODO: sloppy null check, but it works.
-								clickPoint = new Point(0,0);
+								clickPoint = new Point(0, 0);
 							}
 							clickPoint = getClickPoint(clickArea);
 							System.out.println(clickPoint);
@@ -91,11 +95,12 @@ public class MouseUtil {
 							int mask = InputEvent.BUTTON1_DOWN_MASK;
 							int clientX = ClientUI.frame.getX();
 							int clientY = ClientUI.frame.getY();
-							bot.mouseMove(clickPoint.getX(),clickPoint.getY());
+							bot.mouseMove(clickPoint.getX(), clickPoint.getY());
 							bot.mousePressAndRelease(1);
 					}
 
 				}
+			}
 		}
 	}
 }
