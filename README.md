@@ -7,7 +7,7 @@ RuneLit is a fork of [RuneLite](https://github.com/runelite/runelite) that inclu
   
 ### Flexo, the Robot  
 A very flexible mouse input assistant. Includes a plugin for on the fly configuration.  
-Uses https://github.com/JoonasVali/NaturalMouseMotion
+Uses https://github.com/JoonasVali/NaturalMouseMotion  
 Settings:  
 ![](https://i.imgur.com/2caAk5H.png)  
 Example of settings in action  
