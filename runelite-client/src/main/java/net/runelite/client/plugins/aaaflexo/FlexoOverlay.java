@@ -1,8 +1,6 @@
 package net.runelite.client.plugins.aaaflexo;
 
-import javafx.scene.shape.Circle;
 import net.runelite.api.Client;
-import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
