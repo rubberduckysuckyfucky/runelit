@@ -1,7 +1,7 @@
 package net.runelite.client.plugins.aaautoswitcherbeta;
 
+import com.google.inject.Provides;
 import java.awt.Rectangle;
-import java.awt.event.InputEvent;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import net.runelite.api.Client;
@@ -9,9 +9,10 @@ import net.runelite.api.Point;
 import net.runelite.api.Query;
 import net.runelite.api.queries.InventoryWidgetItemQuery;
 import net.runelite.api.widgets.WidgetItem;
+import net.runelite.client.config.ConfigManager;
 import net.runelite.client.flexo.Flexo;
 import net.runelite.client.flexo.FlexoUtils;
-import net.runelite.client.ui.ClientUI;
+import net.runelite.client.plugins.stretchedmode.StretchedModeConfig;
 import net.runelite.client.util.QueryRunner;
 
 public class MouseUtil
@@ -21,39 +22,61 @@ public class MouseUtil
 
 	@Inject
 	private AutoSwitcherPlugin plugin;
-	private Point clickPoint = new Point(0, 0);
-	@Inject
-	private QueryRunner queryRunner = new QueryRunner();
 
 	@Inject
-	public MouseUtil(@Nullable Client client, AutoSwitcherPlugin plugin)
+	private AutoSwitcherConfig config;
+
+	@Inject
+	private StretchedModeConfig smConfig;
+
+	@Inject
+	private QueryRunner queryRunner = new QueryRunner();
+	private Point clickPoint = new Point(0, 0);
+
+
+	@Provides
+	AutoSwitcherConfig getConfig(ConfigManager configManager)
+	{
+		return configManager.getConfig(AutoSwitcherConfig.class);
+	}
+
+	@Provides
+	StretchedModeConfig getConfig2(ConfigManager configManager)
+	{
+		return configManager.getConfig(StretchedModeConfig.class);
+	}
+
+	@Inject
+	public MouseUtil(@Nullable Client client, AutoSwitcherConfig config, StretchedModeConfig smConfig, AutoSwitcherPlugin plugin)
 	{
 		this.client = client;
+		this.config = config;
+		this.smConfig = smConfig;
 		this.plugin = plugin;
 	}
 
-	private Point getClickPoint(Rectangle rect)
+	public Point getClickPoint(Rectangle rect)
 	{
-		//if (config.stretchedState())
-		//TODO:Theres probably a better implementation than this.
-		int rand = (Math.random() <= 0.5) ? 1 : 2;
-		int x = (int) (rect.getX() + rand + rect.getWidth() / 2);
-		int y = (int) (rect.getY() + rand + rect.getHeight() / 2);
-		//TODO:int 75 Should grab config.scalingFactor().
-		double scale = 1 + ((double) 75 / 100);
-		return new Point((int) (x * scale), (int) (y * scale));
-/*		else
+		if (config.stretchedState())
+		{
+			int rand = (Math.random() <= 0.5) ? 1 : 2;
+			int x = (int) (rect.getX() + rand + rect.getWidth() / 2);
+			int y = (int) (rect.getY() + rand + rect.getHeight() / 2);
+			double scale = 1 + ((double) smConfig.scalingFactor() / 100);
+			return new Point((int) (x * scale), (int) (y * scale));
+		}
+		else
 		{
 			int rand = (Math.random() <= 0.5) ? 1 : 2;
 			int x = (int) (rect.getX() + rand + rect.getWidth() / 2);
 			int y = (int) (rect.getY() + rand + rect.getHeight() / 2);
 			return new Point(x, y);
-		}*/
+		}
 	}
-
 
 	public void doClick(int id)
 	{
+		double scale = 1 + ((double) smConfig.scalingFactor() / 100);
 		Flexo bot = null;
 		try
 		{
@@ -81,10 +104,9 @@ public class MouseUtil
 						case "Group 2":
 						case "Group 3":
 						case "Group 4":
-              Rectangle clickArea = FlexoUtils.getItemArea(item, 3);
+							Rectangle clickArea = FlexoUtils.getItemArea(item, 3);
 							if (clickArea.getY() <= 0)
 							{
-								//TODO: sloppy null check, but it works.
 								clickPoint = new Point(0, 0);
 							}
 							clickPoint = getClickPoint(clickArea);
@@ -93,9 +115,7 @@ public class MouseUtil
 							{
 								return;
 							}
-							int clientX = ClientUI.frame.getX();
-							int clientY = ClientUI.frame.getY();
-							bot.mouseMove(clickPoint.getX(), clickPoint.getY());
+							bot.mouseMove(clickPoint.getX(), (clickPoint.getY() + 20));
 							bot.mousePressAndRelease(1);
 					}
 
