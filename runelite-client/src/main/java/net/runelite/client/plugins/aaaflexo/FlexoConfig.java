@@ -75,5 +75,96 @@ public interface FlexoConfig extends Config {
         return 4;
     }
 
+    @ConfigItem(
+            position = 4,
+            keyName = "variatingFlow",
+            name = "Flow - Variating",
+            description = ""
+    )
+    default boolean getVariatingFlow() {
+        return true;
+    }
 
+    @ConfigItem(
+            position = 5,
+            keyName = "slowStartupFlow",
+            name = "Flow - Slow startup",
+            description = ""
+    )
+    default boolean getSlowStartupFlow() {
+        return true;
+    }
+
+
+    @ConfigItem(
+            position = 6,
+            keyName = "slowStartup2Flow",
+            name = "Flow - Slow startup 2",
+            description = ""
+    )
+    default boolean getSlowStartup2Flow() {
+        return true;
+    }
+
+    @ConfigItem(
+            position = 7,
+            keyName = "jaggedFlow",
+            name = "Flow - Jagged",
+            description = ""
+    )
+    default boolean getJaggedFlow() {
+        return true;
+    }
+
+    @ConfigItem(
+            position = 8,
+            keyName = "interruptedFlow",
+            name = "Flow - Interrupted",
+            description = ""
+    )
+    default boolean getInterruptedFlow() {
+        return false;
+    }
+
+
+    @ConfigItem(
+            position = 9,
+            keyName = "interruptedFlow2",
+            name = "Flow - Interrupted 2",
+            description = ""
+    )
+    default boolean getInterruptedFlow2() {
+        return false;
+    }
+
+    @ConfigItem(
+            position = 10,
+            keyName = "stoppingFlow",
+            name = "Flow - Stopping",
+            description = ""
+    )
+    default boolean getStoppingFlow() {
+        return false;
+    }
+
+    @ConfigItem(
+            position = 11,
+            keyName = "deviationSlopeDivider",
+            name = "Deviation slope divider",
+            description = ""
+    )
+    default int getDeviationSlope() {
+        return 10;
+    }
+
+
+    @ConfigItem(
+            position = 12,
+            keyName = "noisinessDivider",
+            name = "Noisiness divider",
+            description = ""
+    )
+    default String getNoisinessDivider() {
+        return "2.0D";
+    }
 }

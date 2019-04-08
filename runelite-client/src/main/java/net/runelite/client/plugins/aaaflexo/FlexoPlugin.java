@@ -51,16 +51,36 @@ public class FlexoPlugin extends Plugin {
         Flexo.minDelay = getConfig(configManager).minDelayAmt();
         MouseMotionFactory factory = new MouseMotionFactory();
         //TODO:Add Options for various flows to allow more personalization
-        List<Flow> flows = new ArrayList<>(Arrays.asList(
-                new Flow(FlowTemplates.variatingFlow()),
-                new Flow(FlowTemplates.slowStartupFlow()),
-                new Flow(FlowTemplates.slowStartup2Flow()),
-                new Flow(FlowTemplates.jaggedFlow())
-        ));
+        List<Flow> flows = new ArrayList<>();
+
+        //Always add random
+        flows.add(new Flow(FlowTemplates.random()));
+
+        if (getConfig(configManager).getVariatingFlow())
+        flows.add(new Flow(FlowTemplates.variatingFlow()));
+
+        if (getConfig(configManager).getSlowStartupFlow())
+        flows.add(new Flow(FlowTemplates.slowStartupFlow()));
+
+        if (getConfig(configManager).getSlowStartup2Flow())
+        flows.add(new Flow(FlowTemplates.slowStartup2Flow()));
+
+        if (getConfig(configManager).getJaggedFlow())
+        flows.add(new Flow(FlowTemplates.jaggedFlow()));
+
+        if (getConfig(configManager).getInterruptedFlow())
+        flows.add(new Flow(FlowTemplates.interruptedFlow()));
+
+        if (getConfig(configManager).getInterruptedFlow2())
+        flows.add(new Flow(FlowTemplates.interruptedFlow2()));
+
+        if (getConfig(configManager).getStoppingFlow())
+        flows.add(new Flow(FlowTemplates.stoppingFlow()));
+
         DefaultSpeedManager manager = new DefaultSpeedManager(flows);
         //TODO:Add options for custom Deviation Provider and Noise Provider
-        factory.setDeviationProvider(new SinusoidalDeviationProvider(SinusoidalDeviationProvider.DEFAULT_SLOPE_DIVIDER));
-        factory.setNoiseProvider(new DefaultNoiseProvider(DefaultNoiseProvider.DEFAULT_NOISINESS_DIVIDER));
+        factory.setDeviationProvider(new SinusoidalDeviationProvider(getConfig(configManager).getDeviationSlope()));
+        factory.setNoiseProvider(new DefaultNoiseProvider(Double.valueOf(getConfig(configManager).getNoisinessDivider())));
         factory.getNature().setReactionTimeVariationMs(getConfig(configManager).getReactionTimeVariation());
         manager.setMouseMovementBaseTimeMs(getConfig(configManager).getMouseDragSpeed());
 
