@@ -42,6 +42,7 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.devtools.WidgetInfoTableModel;
 import net.runelite.client.plugins.inventorytags.InventoryTagsConfig;
+import net.runelite.client.plugins.stretchedmode.StretchedModeConfig;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.ColorUtil;
 import org.apache.commons.lang3.ArrayUtils;
@@ -99,11 +100,22 @@ public class AutoSwitcherPlugin extends Plugin {
     private OverlayManager overlayManager;
     @Inject
     private AutoSwitcherOverlay overlay;
+	@Inject
+	private StretchedModeConfig smConfig;
 
-    @Provides
-    AutoSwitcherConfig getConfig(ConfigManager configManager) {
-        return configManager.getConfig(AutoSwitcherConfig.class);
-    }
+
+	@Provides
+	AutoSwitcherConfig getConfig(ConfigManager configManager)
+	{
+		return configManager.getConfig(AutoSwitcherConfig.class);
+	}
+
+	@Provides
+	StretchedModeConfig getConfig2(ConfigManager configManager)
+	{
+		return configManager.getConfig(StretchedModeConfig.class);
+	}
+
 
     @Override
     protected void startUp() throws Exception {
@@ -168,7 +180,7 @@ public class AutoSwitcherPlugin extends Plugin {
     }
 
     public void executeScript(int preset) {
-        MouseUtil mu = new MouseUtil(client, this);
+        MouseUtil mu = new MouseUtil(client,config,smConfig,this);
         Point p = MouseInfo.getPointerInfo().getLocation();
         try {
             Flexo flexo = new Flexo();
