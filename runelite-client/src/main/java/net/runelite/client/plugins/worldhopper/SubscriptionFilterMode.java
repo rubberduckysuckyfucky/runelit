@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Tomas Slusny <slusnucky@gmail.com>
+ * Copyright (c) 2019, Shawn <http://github.com/DrRobosnarfen>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,27 +22,24 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.itemcharges;
+package net.runelite.client.plugins.worldhopper;
 
-import com.google.common.collect.Sets;
-import java.util.Set;
 import lombok.Getter;
-import net.runelite.api.EquipmentInventorySlot;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-enum ItemWithSlot
+@RequiredArgsConstructor
+public enum SubscriptionFilterMode
 {
-	ABYSSAL_BRACELET(ItemChargeType.ABYSSAL_BRACELET, EquipmentInventorySlot.GLOVES),
-	DODGY_NECKLACE(ItemChargeType.DODGY_NECKLACE, EquipmentInventorySlot.AMULET),
-	BINDING_NECKLACE(ItemChargeType.BINDING_NECKLACE, EquipmentInventorySlot.AMULET),
-	TELEPORT(ItemChargeType.TELEPORT, EquipmentInventorySlot.WEAPON, EquipmentInventorySlot.AMULET, EquipmentInventorySlot.GLOVES, EquipmentInventorySlot.RING);
+	BOTH("Both"),
+	FREE("Free"),
+	MEMBERS("Member");
 
-	private final ItemChargeType type;
-	private final Set<EquipmentInventorySlot> slots;
+	private final String name;
 
-	ItemWithSlot(final ItemChargeType type, final EquipmentInventorySlot... slots)
+	@Override
+	public String toString()
 	{
-		this.type = type;
-		this.slots = Sets.newHashSet(slots);
+		return name;
 	}
 }
