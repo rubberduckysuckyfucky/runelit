@@ -33,20 +33,27 @@ import com.google.gson.Gson;
 import io.sigpipe.jbsdiff.InvalidHeaderException;
 import io.sigpipe.jbsdiff.Patch;
 import java.applet.Applet;
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.URL;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -65,6 +72,9 @@ public class ClientLoader
 {
 	private final ClientConfigLoader clientConfigLoader;
 	private ClientUpdateCheckMode updateCheckMode;
+	private Boolean updateInjectedClient = true;
+	private JarOutputStream target;
+	private String rawClassDir = "./raw/";
 
 	@Inject
 	private ClientLoader(
@@ -84,7 +94,22 @@ public class ClientLoader
 
 		try
 		{
+			File injectedClientFile = new File("./injectedClient-"+ RuneLiteAPI.getVersion() +"-.jar");
+			File hijackedClientFile = new File("./hijackedClient-"+ RuneLiteAPI.getVersion() +"-.jar");
+			if (!new File(rawClassDir).exists())
+				new File(rawClassDir).mkdir();
+			if (injectedClientFile.exists()) {
+				updateInjectedClient = false;
+			}
+			if (updateInjectedClient) {
+				new File(rawClassDir).delete();
+				new File(rawClassDir).mkdir();
+				Manifest manifest = new Manifest();
+				manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+				target = new JarOutputStream(new FileOutputStream(injectedClientFile), manifest);
+			}
 			RSConfig config = clientConfigLoader.fetch();
+
 
 			Map<String, byte[]> zipFile = new HashMap<>();
 			{
@@ -98,7 +123,18 @@ public class ClientLoader
 
 				try (Response response = RuneLiteAPI.CLIENT.newCall(request).execute())
 				{
-					JarInputStream jis = new JarInputStream(response.body().byteStream());
+					JarInputStream jis;
+					if (updateInjectedClient==false) {
+
+						if (!hijackedClientFile.exists()) {
+							System.out.println("[RUNELIT] " + "No hijacked client found, reverting to vanilla");
+							jis = new JarInputStream(response.body().byteStream());
+						} else {
+							jis = new JarInputStream(new FileInputStream(hijackedClientFile));
+						}
+					} else {
+						jis = new JarInputStream(response.body().byteStream());
+					}
 
 					byte[] tmp = new byte[4096];
 					ByteArrayOutputStream buffer = new ByteArrayOutputStream(756 * 1024);
@@ -121,22 +157,18 @@ public class ClientLoader
 							buffer.write(tmp, 0, n);
 						}
 
-						if (!Arrays.equals(metadata.getCertificates(), jagexCertificateChain))
-						{
-							if (metadata.getName().startsWith("META-INF/"))
-							{
-								// META-INF/JAGEXLTD.SF and META-INF/JAGEXLTD.RSA are not signed, but we don't need
-								// anything in META-INF anyway.
-								continue;
-							}
-							else
-							{
-								throw new VerificationException("Unable to verify jar entry: " + metadata.getName());
+						if (updateInjectedClient) {
+							if (!metadata.getName().startsWith("META")) {
+								File currentIndex = new File(rawClassDir+metadata.getName());
+								OutputStream os = new FileOutputStream(currentIndex);
+								os.write(buffer.toByteArray());
+								add(buffer.toByteArray(), metadata.getName(), target);
 							}
 						}
-
 						zipFile.put(metadata.getName(), buffer.toByteArray());
 					}
+					if (target!=null)
+					target.close();
 				}
 			}
 
@@ -162,7 +194,7 @@ public class ClientLoader
 
 					if (!file.getValue().equals(ourHash))
 					{
-						log.debug("{} had a hash mismatch; falling back to vanilla. {} != {}", file.getKey(), file.getValue(), ourHash);
+						log.info("{} had a hash mismatch; falling back to vanilla. {} != {}", file.getKey(), file.getValue(), ourHash);
 						log.info("Client is outdated!");
 						updateCheckMode = VANILLA;
 						break;
@@ -223,8 +255,7 @@ public class ClientLoader
 			return rs;
 		}
 		catch (IOException | ClassNotFoundException | InstantiationException | IllegalAccessException
-			| CompressorException | InvalidHeaderException | CertificateException | VerificationException
-			| SecurityException e)
+			| CompressorException | InvalidHeaderException | CertificateException | SecurityException e)
 		{
 			if (e instanceof ClassNotFoundException)
 			{
@@ -235,6 +266,19 @@ public class ClientLoader
 
 			log.error("Error loading RS!", e);
 			return null;
+		}
+	}
+
+	private void add(byte[] bytes, String entryName ,JarOutputStream target) throws IOException {
+		BufferedInputStream in = null;
+		try {
+			JarEntry entry = new JarEntry(entryName.replace(rawClassDir,""));
+			target.putNextEntry(entry);
+			target.write(bytes);
+			target.closeEntry();
+		} finally {
+			if (in != null)
+				in.close();
 		}
 	}
 
