@@ -157,18 +157,8 @@ public class ClientLoader
 							buffer.write(tmp, 0, n);
 						}
 
-						if (updateInjectedClient) {
-							if (!metadata.getName().startsWith("META")) {
-								File currentIndex = new File(rawClassDir+metadata.getName());
-								OutputStream os = new FileOutputStream(currentIndex);
-								os.write(buffer.toByteArray());
-								add(buffer.toByteArray(), metadata.getName(), target);
-							}
-						}
 						zipFile.put(metadata.getName(), buffer.toByteArray());
 					}
-					if (target!=null)
-					target.close();
 				}
 			}
 
@@ -225,9 +215,20 @@ public class ClientLoader
 					file.setValue(patchOs.toByteArray());
 
 					++patchCount;
-				}
 
-				log.debug("Patched {} classes", patchCount);
+					if (updateInjectedClient) {
+						if (!file.getKey().startsWith("META")) {
+							File currentIndex = new File(rawClassDir+file.getKey());
+							OutputStream os = new FileOutputStream(currentIndex);
+							os.write(bytes);
+							add(file.getValue(), file.getKey(), target);
+						}
+					}
+				}
+				if (target!=null)
+					target.close();
+
+				log.info("Patched {} classes", patchCount);
 			}
 
 			String initialClass = config.getInitialClass();
