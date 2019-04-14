@@ -1,0 +1,636 @@
+Index: runelite-api/src/main/java/net/runelite/api/AnimationID.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- runelite-api/src/main/java/net/runelite/api/AnimationID.java	(revision 0e1626ec07c2658fd038c5969dc3b0994f43c2e4)
++++ runelite-api/src/main/java/net/runelite/api/AnimationID.java	(revision 0ed8209f74fab2b82010faf1c3a503b32f2d8039)
+@@ -194,4 +194,26 @@
+ 
+ 	// POH Animations
+ 	public static final int INCENSE_BURNER = 3687;
++
++	// Hydra
++	public static final int HYDRA_POISON_1 = 8234;
++	public static final int HYDRA_RANGED_1 = 8235;
++	public static final int HYDRA_MAGIC_1 = 8236;
++	public static final int HYDRA_1_1 = 8237;
++	public static final int HYDRA_1_2 = 8238;
++	public static final int HYDRA_LIGHTNING = 8241;
++	public static final int HYDRA_RANGED_2 = 8242;
++	public static final int HYDRA_MAGIC_2 = 8243;
++	public static final int HYDRA_2_1 = 8244;
++	public static final int HYDRA_2_2 = 8245;
++	public static final int HYDRA_FIRE = 8248;
++	public static final int HYDRA_RANGED_3 = 8249;
++	public static final int HYDRA_MAGIC_3 = 8250;
++	public static final int HYDRA_3_1 = 8251;
++	public static final int HYDRA_3_2 = 8252;
++	public static final int HYDRA_MAGIC_4 = 8254;
++	public static final int HYDRA_POISON_4 = 8254;
++	public static final int HYDRA_RANGED_4 = 8255;
++	public static final int HYDRA_4_1 = 8257;
++	public static final int HYDRA_4_2 = 8258;
+ }
+Index: runelite-api/src/main/java/net/runelite/api/ProjectileID.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- runelite-api/src/main/java/net/runelite/api/ProjectileID.java	(revision 0e1626ec07c2658fd038c5969dc3b0994f43c2e4)
++++ runelite-api/src/main/java/net/runelite/api/ProjectileID.java	(revision 0ed8209f74fab2b82010faf1c3a503b32f2d8039)
+@@ -84,4 +84,10 @@
+ 	public static final int VORKATH_PRAYER_DISABLE = 1471;
+ 	public static final int VORKATH_VENOM = 1470;
+ 	public static final int VORKATH_ICE = 350;
++
++	public static final int HYDRA_MAGIC = 1662;
++	public static final int HYDRA_RANGED = 1663;
++	public static final int HYDRA_POISON = 1644;
++	public static final int HYDRA_LIGHTNING = 1664;
++	public static final int HYDRA_LIGHTNING_2 = 1665;
+ }
+Index: runelite-api/src/main/java/net/runelite/api/SpriteID.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- runelite-api/src/main/java/net/runelite/api/SpriteID.java	(revision 0e1626ec07c2658fd038c5969dc3b0994f43c2e4)
++++ runelite-api/src/main/java/net/runelite/api/SpriteID.java	(revision 0ed8209f74fab2b82010faf1c3a503b32f2d8039)
+@@ -1566,4 +1566,7 @@
+ 	public static final int MOBILE_YELLOW_TOUCH_ANIMATION_2 = 1626;
+ 	public static final int TAB_MAGIC_SPELLBOOK_ARCEUUS_UNUSED = 1708;
+ 	public static final int TAB_MAGIC_SPELLBOOK_ARCEUUS = 1711;
++	public static final int BIG_ASS_GUTHIX_SPELL = 1774;
++	public static final int BIG_SUPERHEAT = 1800;
++	public static final int BIG_SPEC_TRANSFER = 1959;
+ }
+Index: runelite-client/src/main/java/net/runelite/client/plugins/hydra/Hydra.java
+===================================================================
+--- runelite-client/src/main/java/net/runelite/client/plugins/hydra/Hydra.java	(revision 0ed8209f74fab2b82010faf1c3a503b32f2d8039)
++++ runelite-client/src/main/java/net/runelite/client/plugins/hydra/Hydra.java	(revision 0ed8209f74fab2b82010faf1c3a503b32f2d8039)
+@@ -0,0 +1,62 @@
++package net.runelite.client.plugins.hydra;
++
++import javax.inject.Singleton;
++import lombok.Getter;
++import lombok.Setter;
++import net.runelite.api.Prayer;
++import net.runelite.api.ProjectileID;
++
++@Singleton
++class Hydra
++{
++	enum AttackStyle
++	{
++		MAGIC(ProjectileID.HYDRA_MAGIC, Prayer.PROTECT_FROM_MAGIC),
++		RANGED(ProjectileID.HYDRA_RANGED, Prayer.PROTECT_FROM_MISSILES);
++
++		@Getter
++		private int projId;
++
++		@Getter
++		private Prayer prayer;
++
++		AttackStyle(int projId, Prayer prayer)
++		{
++			this.projId = projId;
++			this.prayer = prayer;
++		}
++	}
++
++	@Getter
++	@Setter
++	private HydraPhase phase;
++
++	@Getter
++	@Setter
++	private int attackCount;
++
++	@Getter
++	@Setter
++	private int nextSwitch;
++
++	@Getter
++	@Setter
++	private int nextSpecial;
++
++	@Getter
++	@Setter
++	private AttackStyle nextAttack;
++
++	@Getter
++	@Setter
++	private AttackStyle lastAttack;
++
++	Hydra()
++	{
++		this.phase = HydraPhase.ONE;
++		this.nextAttack = AttackStyle.MAGIC;
++		this.nextSpecial = 3;
++		this.nextSwitch = phase.getAttacksPerSwitch();
++		this.attackCount = 0;
++	}
++}
+Index: runelite-client/src/main/java/net/runelite/client/plugins/hydra/HydraOverlay.java
+===================================================================
+--- runelite-client/src/main/java/net/runelite/client/plugins/hydra/HydraOverlay.java	(revision 0ed8209f74fab2b82010faf1c3a503b32f2d8039)
++++ runelite-client/src/main/java/net/runelite/client/plugins/hydra/HydraOverlay.java	(revision 0ed8209f74fab2b82010faf1c3a503b32f2d8039)
+@@ -0,0 +1,133 @@
++package net.runelite.client.plugins.hydra;
++
++import java.awt.Color;
++import java.awt.Dimension;
++import java.awt.Graphics;
++import java.awt.Graphics2D;
++import java.awt.Image;
++import java.awt.Rectangle;
++import java.awt.image.BufferedImage;
++import javax.inject.Inject;
++import lombok.extern.slf4j.Slf4j;
++import net.runelite.api.Client;
++import net.runelite.api.Prayer;
++import net.runelite.api.SpriteID;
++import net.runelite.client.game.SpriteManager;
++import net.runelite.client.ui.overlay.Overlay;
++import net.runelite.client.ui.overlay.OverlayPosition;
++import net.runelite.client.ui.overlay.components.InfoBoxComponent;
++import net.runelite.client.ui.overlay.components.PanelComponent;
++
++@Slf4j
++class HydraOverlay extends Overlay
++{
++	private HydraPlugin plugin;
++	private final Client client;
++	private final SpriteManager spriteManager;
++	private final PanelComponent panelComponent = new PanelComponent();
++	private static final Color redBgCol = new Color(156, 0, 0, 156);
++	private static final Color yelBgCol = new Color(200, 156, 0, 156);
++	private static final Color grnBgCol = new Color(0, 156, 0, 156);
++
++	@Inject
++	HydraOverlay(HydraPlugin plugin, Client client, SpriteManager spriteManager)
++	{
++		this.plugin = plugin;
++		this.client = client;
++		this.spriteManager = spriteManager;
++		setPosition(OverlayPosition.BOTTOM_RIGHT);
++		panelComponent.setOrientation(PanelComponent.Orientation.VERTICAL);
++	}
++
++	@Override
++	public Dimension render(Graphics2D graphics2D)
++	{
++		Hydra hydra = plugin.getHydra();
++		panelComponent.getChildren().clear();
++
++		if (hydra == null || client == null)
++		{
++			log.debug((hydra == null) + " kankerzooi");
++			return null;
++		}
++
++		//Add spec overlay first, to keep it above pray
++		HydraPhase phase = hydra.getPhase();
++		int attackCount = hydra.getAttackCount();
++		int nextSpec = hydra.getNextSpecial() - attackCount;
++
++		if (nextSpec <= 3)
++		{
++			InfoBoxComponent specComponent = new InfoBoxComponent();
++
++			if (nextSpec == 0)
++			{
++				specComponent.setBackgroundColor(redBgCol);
++			}
++			else if (nextSpec == 1)
++			{
++				specComponent.setBackgroundColor(yelBgCol);
++			}
++			Image specImg = scaleImg(spriteManager.getSprite(phase.getSpecImage(), 0));
++
++			specComponent.setImage(specImg);
++			specComponent.setText("        " + (nextSpec)); //hacky way to not have to figure out how to move text
++			specComponent.setPreferredSize(new Dimension(40, 40));
++			panelComponent.getChildren().add(specComponent);
++		}
++
++
++		Prayer nextPrayer = hydra.getNextAttack().getPrayer();
++		Image prayImg = scaleImg(getPrayerImage(hydra.getNextAttack().getPrayer()));
++		int nextSwitch = hydra.getNextSwitch();
++
++		InfoBoxComponent prayComponent = new InfoBoxComponent();
++
++		if (nextSwitch == 1)
++		{
++			prayComponent.setBackgroundColor(client.isPrayerActive(nextPrayer) ? yelBgCol : redBgCol);
++		}
++		else
++		{
++			prayComponent.setBackgroundColor(client.isPrayerActive(nextPrayer) ? grnBgCol : redBgCol);
++		}
++
++		prayComponent.setImage(prayImg);
++		prayComponent.setText("        " + nextSwitch);
++		prayComponent.setColor(Color.white);
++		prayComponent.setPreferredSize(new Dimension(40, 40));
++		panelComponent.getChildren().add(prayComponent);
++
++		panelComponent.setPreferredSize(new Dimension(40, 0));
++		panelComponent.setBorder(new Rectangle(0, 0, 0, 0));
++		return panelComponent.render(graphics2D);
++	}
++
++	private BufferedImage getPrayerImage(Prayer pray)
++	{
++		return pray == Prayer.PROTECT_FROM_MAGIC
++			? spriteManager.getSprite(SpriteID.PRAYER_PROTECT_FROM_MAGIC, 0)
++			: spriteManager.getSprite(SpriteID.PRAYER_PROTECT_FROM_MISSILES, 0);
++	}
++
++	private Image scaleImg(final Image img)
++	{
++		if (img == null)
++		{
++			return null;
++		}
++		final double width = img.getWidth(null);
++		final double height = img.getHeight(null);
++		final double size = 36; // Limit size to 2 as that is minimum size not causing breakage
++		final double scalex = size / width;
++		final double scaley = size / height;
++		final double scale = Math.min(scalex, scaley);
++		final int newWidth = (int) (width * scale);
++		final int newHeight = (int) (height * scale);
++		final BufferedImage scaledImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
++		final Graphics g = scaledImage.createGraphics();
++		g.drawImage(img, 0, 0, newWidth, newHeight, null);
++		g.dispose();
++		return scaledImage;
++	}
++}
+Index: runelite-client/src/main/java/net/runelite/client/plugins/hydra/HydraPhase.java
+===================================================================
+--- runelite-client/src/main/java/net/runelite/client/plugins/hydra/HydraPhase.java	(revision 0ed8209f74fab2b82010faf1c3a503b32f2d8039)
++++ runelite-client/src/main/java/net/runelite/client/plugins/hydra/HydraPhase.java	(revision 0ed8209f74fab2b82010faf1c3a503b32f2d8039)
+@@ -0,0 +1,42 @@
++package net.runelite.client.plugins.hydra;
++
++import lombok.Getter;
++import net.runelite.api.AnimationID;
++import net.runelite.api.ProjectileID;
++import net.runelite.api.SpriteID;
++
++enum HydraPhase
++{
++	ONE(3, AnimationID.HYDRA_1_1, AnimationID.HYDRA_1_2, ProjectileID.HYDRA_POISON, 0, SpriteID.BIG_ASS_GUTHIX_SPELL),
++	TWO(3, AnimationID.HYDRA_2_1, AnimationID.HYDRA_2_2, 0, AnimationID.HYDRA_LIGHTNING, SpriteID.BIG_SPEC_TRANSFER),
++	THREE(3, AnimationID.HYDRA_3_1, AnimationID.HYDRA_3_2, 0, AnimationID.HYDRA_FIRE, SpriteID.BIG_SUPERHEAT),
++	FOUR(1, AnimationID.HYDRA_4_1, AnimationID.HYDRA_4_2, ProjectileID.HYDRA_POISON, 0, SpriteID.BIG_ASS_GUTHIX_SPELL);
++
++	@Getter
++	private int attacksPerSwitch;
++
++	@Getter
++	private int deathAnim1;
++
++	@Getter
++	private int deathAnim2;
++
++	@Getter
++	private int specProjectileId;
++
++	@Getter
++	private int specAnimationId;
++
++	@Getter
++	private int specImage;
++
++	HydraPhase(int attacksPerSwitch, int deathAnim1, int deathAnim2, int specProjectileId, int specAnimationId, int specImage)
++	{
++		this.attacksPerSwitch = attacksPerSwitch;
++		this.deathAnim1 = deathAnim1;
++		this.deathAnim2 = deathAnim2;
++		this.specProjectileId = specProjectileId;
++		this.specAnimationId = specAnimationId;
++		this.specImage = specImage;
++	}
++}
+\ No newline at end of file
+Index: runelite-client/src/main/java/net/runelite/client/plugins/hydra/HydraPlugin.java
+===================================================================
+--- runelite-client/src/main/java/net/runelite/client/plugins/hydra/HydraPlugin.java	(revision 0ed8209f74fab2b82010faf1c3a503b32f2d8039)
++++ runelite-client/src/main/java/net/runelite/client/plugins/hydra/HydraPlugin.java	(revision 0ed8209f74fab2b82010faf1c3a503b32f2d8039)
+@@ -0,0 +1,243 @@
++package net.runelite.client.plugins.hydra;
++
++import java.util.Arrays;
++import java.util.HashSet;
++import javax.inject.Inject;
++import lombok.Getter;
++import lombok.extern.slf4j.Slf4j;
++import net.runelite.api.Actor;
++import net.runelite.api.Client;
++import net.runelite.api.GameState;
++import net.runelite.api.NpcID;
++import net.runelite.api.Projectile;
++import net.runelite.api.coords.LocalPoint;
++import net.runelite.api.events.AnimationChanged;
++import net.runelite.api.events.GameStateChanged;
++import net.runelite.api.events.NpcSpawned;
++import net.runelite.api.events.ProjectileMoved;
++import net.runelite.client.eventbus.Subscribe;
++import net.runelite.client.plugins.Plugin;
++import net.runelite.client.plugins.PluginDescriptor;
++import net.runelite.client.ui.overlay.OverlayManager;
++
++@PluginDescriptor(
++	name = "Hydra",
++	description = "Show what to pray against hydra",
++	tags = {"Hydra", "Lazy", "4 headed asshole"}
++)
++@Slf4j
++public class HydraPlugin extends Plugin
++{
++	@Getter
++	private HashSet<LocalPoint> poisonPoints = new HashSet<>();
++
++	@Getter
++	private Hydra hydra;
++
++	private boolean inHydraInstance;
++	private int lastAttackTick;
++	private int lastPoisonTick;
++
++	private static final int[] HYDRA_REGIONS = {
++		5279, 5280,
++		5535, 5536
++	};
++
++	@Inject
++	private Client client;
++
++	@Inject
++	private OverlayManager overlayManager;
++
++	@Inject
++	private HydraOverlay overlay;
++
++	@Inject
++	private HydraPoisonOverlay poisonOverlay;
++
++	@Override
++	protected void startUp()
++	{
++		inHydraInstance = checkArea();
++		lastAttackTick = -1;
++		poisonPoints.clear();
++	}
++
++	@Override
++	protected void shutDown()
++	{
++		inHydraInstance = false;
++		hydra = null;
++		poisonPoints.clear();
++		removeOverlays();
++		lastAttackTick = -1;
++	}
++
++	@Subscribe
++	private void onGameStateChanged(GameStateChanged state)
++	{
++		if (state.getGameState() != GameState.LOGGED_IN)
++		{
++			return;
++		}
++
++		inHydraInstance = checkArea();
++
++		if (!inHydraInstance)
++		{
++			removeOverlays();
++			hydra = null;
++			log.debug("Left hydra instance");
++		}
++		else
++		{
++			hydra = new Hydra();
++			log.debug("Entered hydra instance");
++			addOverlays();
++		}
++	}
++
++	@Subscribe
++	private void onNpcSpawned(NpcSpawned event)
++	{
++		if (!inHydraInstance || event.getNpc().getId() != NpcID.ALCHEMICAL_HYDRA)
++		{
++			return;
++		}
++
++		hydra = new Hydra();
++		log.debug("Hydra spawned");
++		addOverlays();
++	}
++
++	@Subscribe
++	public void onAnimationChanged(AnimationChanged animationChanged)
++	{
++		Actor actor = animationChanged.getActor();
++
++		if (!inHydraInstance || hydra == null || actor == client.getLocalPlayer())
++		{
++			return;
++		}
++
++		HydraPhase phase = hydra.getPhase();
++
++		// Using the first animation sometimes fucks shit up, so just use 2
++		if ( /* actor.getAnimation() == phase.getDeathAnim1() || */ actor.getAnimation() == phase.getDeathAnim2())
++		{
++			switch (phase)
++			{
++				case ONE:
++					changePhase(HydraPhase.TWO);
++					log.debug("Hydra phase 2");
++					return;
++				case TWO:
++					changePhase(HydraPhase.THREE);
++					log.debug("Hydra phase 3");
++					return;
++				case THREE:
++					changePhase(HydraPhase.FOUR);
++					log.debug("Hydra phase 4");
++					return;
++				case FOUR:
++					hydra = null;
++					poisonPoints.clear();
++					log.debug("Hydra dead");
++					removeOverlays();
++					return;
++				default:
++					log.debug("Tried some weird shit");
++					break;
++			}
++		}
++		else if (actor.getAnimation() == phase.getSpecAnimationId() && phase.getSpecAnimationId() != 0)
++		{
++			hydra.setNextSpecial(hydra.getNextSpecial() + 9);
++		}
++
++		if (!poisonPoints.isEmpty() && lastPoisonTick + 10 < client.getTickCount())
++		{
++			poisonPoints.clear();
++		}
++	}
++
++	@Subscribe
++	public void onProjectileMoved(ProjectileMoved event)
++	{
++		if (!inHydraInstance || hydra == null
++			|| client.getGameCycle() >= event.getProjectile().getStartMovementCycle())
++		{
++			return;
++		}
++
++		Projectile projectile = event.getProjectile();
++		int id = projectile.getId();
++		if (hydra.getPhase().getSpecProjectileId() != 0 && hydra.getPhase().getSpecProjectileId() == id)
++		{
++			poisonPoints.add(event.getPosition());
++			hydra.setNextSpecial(hydra.getNextSpecial() + 9);
++			lastPoisonTick = client.getTickCount();
++		}
++		else if (client.getTickCount() != lastAttackTick
++			&& (id == Hydra.AttackStyle.MAGIC.getProjId() || id == Hydra.AttackStyle.RANGED.getProjId()))
++		{
++			handleAttack(id);
++			lastAttackTick = client.getTickCount();
++		}
++	}
++
++	private boolean checkArea()
++	{
++		return Arrays.equals(client.getMapRegions(), HYDRA_REGIONS) && client.isInInstancedRegion();
++	}
++
++	private void addOverlays()
++	{
++		overlayManager.add(overlay);
++		overlayManager.add(poisonOverlay);
++		log.debug("overlays added");
++	}
++
++	private void removeOverlays()
++	{
++		overlayManager.remove(overlay);
++		overlayManager.remove(poisonOverlay);
++		log.debug("overlays removed");
++	}
++
++	private void changePhase(HydraPhase newPhase)
++	{
++		hydra.setPhase(newPhase);
++		hydra.setNextSpecial(3);
++		hydra.setAttackCount(0);
++		if (newPhase == HydraPhase.FOUR)
++		{
++			switchStyles();
++			hydra.setNextSwitch(newPhase.getAttacksPerSwitch());
++		}
++	}
++
++	private void switchStyles()
++	{
++		hydra.setNextAttack(hydra.getLastAttack() == Hydra.AttackStyle.MAGIC
++			? Hydra.AttackStyle.RANGED
++			: Hydra.AttackStyle.MAGIC);
++	}
++
++	private void handleAttack(int id)
++	{
++		hydra.setNextSwitch(hydra.getNextSwitch() - 1);
++		hydra.setAttackCount(hydra.getAttackCount() + 1);
++		hydra.setLastAttack(hydra.getNextAttack());
++
++		if (id != hydra.getNextAttack().getProjId())
++		{
++			switchStyles();
++		}
++		else if (hydra.getNextSwitch() <= 0)
++		{
++			switchStyles();
++			hydra.setNextSwitch(hydra.getPhase().getAttacksPerSwitch());
++		}
++	}
++}
+Index: runelite-client/src/main/java/net/runelite/client/plugins/hydra/HydraPoisonOverlay.java
+===================================================================
+--- runelite-client/src/main/java/net/runelite/client/plugins/hydra/HydraPoisonOverlay.java	(revision 0ed8209f74fab2b82010faf1c3a503b32f2d8039)
++++ runelite-client/src/main/java/net/runelite/client/plugins/hydra/HydraPoisonOverlay.java	(revision 0ed8209f74fab2b82010faf1c3a503b32f2d8039)
+@@ -0,0 +1,62 @@
++package net.runelite.client.plugins.hydra;
++
++
++import java.awt.Color;
++import java.awt.Dimension;
++import java.awt.Graphics2D;
++import java.awt.Polygon;
++import java.util.HashSet;
++import javax.inject.Inject;
++import net.runelite.api.Client;
++import net.runelite.api.Perspective;
++import net.runelite.api.coords.LocalPoint;
++import net.runelite.client.ui.overlay.Overlay;
++import net.runelite.client.ui.overlay.OverlayLayer;
++import net.runelite.client.ui.overlay.OverlayPosition;
++import net.runelite.client.ui.overlay.OverlayUtil;
++
++class HydraPoisonOverlay extends Overlay
++{
++	private final HydraPlugin plugin;
++	private final Client client;
++
++	@Inject
++	public HydraPoisonOverlay(Client client, HydraPlugin plugin)
++	{
++		setPosition(OverlayPosition.DYNAMIC);
++		setLayer(OverlayLayer.UNDER_WIDGETS);
++		this.plugin = plugin;
++		this.client = client;
++	}
++
++	@Override
++	public Dimension render(Graphics2D graphics)
++	{
++		HashSet<LocalPoint> points = plugin.getPoisonPoints();
++
++		for (LocalPoint point : points)
++		{
++			drawTile(graphics, point);
++		}
++
++		return null;
++	}
++
++	private void drawTile(Graphics2D graphics, LocalPoint point)
++	{
++		LocalPoint playerLocation = client.getLocalPlayer().getLocalLocation();
++
++		if (point.distanceTo(playerLocation) >= 128 * 32)
++		{
++			return;
++		}
++
++		Polygon poly = Perspective.getCanvasTilePoly(client, point);
++		if (poly == null)
++		{
++			return;
++		}
++
++		OverlayUtil.renderPolygon(graphics, poly, Color.red);
++	}
++}
+\ No newline at end of file
